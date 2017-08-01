@@ -67,6 +67,33 @@ def tinyMazeSearch(problem):
   w = Directions.WEST
   return  [s,s,w,s,w,w,s,w]
 
+def dfsHelper(problem,state,nxt,path,vis):
+    if (problem.isGoalState(state)):
+        return 1
+
+    for ( nextState, action, cost) in problem.getSuccessors(state):
+        if(vis.has_key(nextState)):
+            continue
+
+        vis[nextState] = 1
+
+        res = dfsHelper(problem,nextState,nxt,path,vis)
+        if(res == 1):
+            nxt[state] = nextState
+            path[state] = action
+            return 1
+
+    return 0
+
+def findPath(state,nxt,path,problem):
+    if(problem.isGoalState(state)):
+        return []
+
+    action = path[state]
+    lst = findPath(nxt[state],nxt,path,problem)
+    lst.append(action)
+    return lst
+
 def depthFirstSearch(problem):
   """
   Search the deepest nodes in the search tree first
@@ -84,7 +111,22 @@ def depthFirstSearch(problem):
   print "Start's successors:", problem.getSuccessors(problem.getStartState())
   """
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
+
+  nxt = {}
+  path = {}
+  vis = {}
+
+  vis[problem.getStartState()] = 1
+  res = dfsHelper(problem,problem.getStartState(),nxt,path,vis)
+
+  if(res == 0):
+      util.raiseNotDefined()
+
+
+
+  pt =  findPath(problem.getStartState(),nxt,path,problem)
+  return list(reversed(pt))
+
 
 def breadthFirstSearch(problem):
   """

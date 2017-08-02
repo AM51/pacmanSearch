@@ -12,6 +12,8 @@ by Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
+
 
 class SearchProblem:
   """
@@ -148,11 +150,55 @@ def nullHeuristic(state, problem=None):
   """
   return 0
 
+def findPathAStar(state,path,nxt,problem):
+
+    if(problem.getStartState() == state):
+        return []
+
+    action = path[state]
+    lst = findPathAStar(nxt[state],path,nxt,problem)
+    lst.append(action)
+    return lst
+
 def aStarSearch(problem, heuristic=nullHeuristic):
   "Search the node that has the lowest combined cost and heuristic first."
   "*** YOUR CODE HERE ***"
-  util.raiseNotDefined()
-    
+
+  from util import PriorityQueueCustom
+  pq = PriorityQueueCustom()
+
+  cst = {}
+  vis = {}
+  path = {}
+  nxt = {}
+
+  startState = problem.getStartState()
+  cst[startState] = 0
+  pq.push((problem.getStartState(),Directions.STOP,(-1,-1)),0)
+
+  goalState = (-1,-1)
+  while(not pq.isEmpty()):
+      (priority,(state,action,prevState)) = pq.pop()
+      cst [state] = priority
+      path[state] = action
+      nxt[state] = prevState
+      vis[state] = 1
+
+      if(problem.isGoalState(state)):
+          goalState = state
+
+      for (nextState, action, cost) in problem.getSuccessors(state):
+          if (vis.has_key(nextState)):
+              continue
+
+          newCost = priority + cost + heuristic(nextState,problem)
+          pq.push((nextState,action,state),newCost)
+
+
+  lst =  findPathAStar(goalState,path,nxt,problem)
+  print(lst)
+  return lst
+
   
 # Abbreviations
 bfs = breadthFirstSearch

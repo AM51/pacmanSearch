@@ -275,19 +275,24 @@ class CornersProblem(search.SearchProblem):
       if not startingGameState.hasFood(*corner):
         print 'Warning: no food in corner ' + str(corner)
     self._expanded = 0 # Number of search nodes expanded
+    self._visited, self._visitedlist = {}, []
     
     "*** YOUR CODE HERE ***"
     
   def getStartState(self):
     "Returns the start state (in your state space, not the full Pacman state space)"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-    
+    return (self.startingPosition,tuple([]))
+
   def isGoalState(self, state):
     "Returns whether this search state is a goal state of the problem"
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-       
+
+    (pos,arr) = state
+    if(len(arr) == 4):
+      return True
+    return False
+
   def getSuccessors(self, state):
     """
     Returns successor states, the actions they require, and a cost of 1.
@@ -299,7 +304,7 @@ class CornersProblem(search.SearchProblem):
      required to get there, and 'stepCost' is the incremental 
      cost of expanding to that successor
     """
-    
+
     successors = []
     for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
       # Add a successor state to the successor list if the action is legal
@@ -308,11 +313,29 @@ class CornersProblem(search.SearchProblem):
       #   dx, dy = Actions.directionToVector(action)
       #   nextx, nexty = int(x + dx), int(y + dy)
       #   hitsWall = self.walls[nextx][nexty]
-      
-      "*** YOUR CODE HERE ***"
-      
-    self._expanded += 1
+      ((x, y),corners) = state
+      dx, dy = Actions.directionToVector(action)
+      nextx, nexty = int(x + dx), int(y + dy)
+
+      ncorners = corners
+      if((nextx,nexty) in self.corners and (nextx,nexty) not in corners):
+        lst = list(corners)
+        lst.append((nextx,nexty))
+        ncorners = tuple(lst)
+
+      if not self.walls[nextx][nexty]:
+        nextState = ((nextx, nexty),tuple(ncorners))
+        cost = 1
+        successors.append((nextState, action, cost))
+
+        # Bookkeeping for display purposes
+      self._expanded += 1
+      if state not in self._visited:
+        self._visited[state] = True
+        self._visitedlist.append(state)
+
     return successors
+
 
   def getCostOfActions(self, actions):
     """
